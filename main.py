@@ -14,7 +14,7 @@ status = "idle"                    # online / dnd / idle
 
 # Coloque seus tokens aqui (pode deixar vazio se for usar variável de ambiente)
 TOKENS = {
-    "TOKEN1": "ODU2NTA3MzU4NjI0NzQzNDI0.NKtw9VA7hAwturxGBmrKOyg-1AA",
+    "TOKEN1": os.getenv("TOKEN1"),
     "TOKEN2": os.getenv("TOKEN2"),
     "TOKEN3": os.getenv("TOKEN3"),
     "TOKEN4": os.getenv("TOKEN4"),
