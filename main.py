@@ -4,6 +4,7 @@ import json
 import asyncio
 import platform
 import requests
+import websockets
 from colorama import init, Fore
 from keep_alive import keep_alive
 
@@ -31,30 +32,37 @@ if not TOKENS:
 
 # ================== VALIDAÇÃO DOS TOKENS ==================
 valid_tokens = {}
-
 for name, token in TOKENS.items():
-    headers = {"Authorization": token, "Content-Type": "application/json"}
-    
+    headers = {
+        "Authorization": token,
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"  # Helps avoid quick detection
+    }
+   
     try:
-        validate = requests.get("https://canary.discordapp.com/api/v9/users/@me", headers=headers, timeout=10)
-        
+        validate = requests.get("https://discord.com/api/v10/users/@me", headers=headers, timeout=15)
+       
         if validate.status_code == 200:
             userinfo = validate.json()
-            username = userinfo["username"]
-            userid = userinfo["id"]
+            username = userinfo.get("username", "Unknown")
+            userid = userinfo.get("id")
             discriminator = userinfo.get("discriminator", "0")
-            
+           
             valid_tokens[token] = {
                 "name": name,
                 "username": f"{username}#{discriminator}",
                 "userid": userid,
                 "display": f"{username} ({userid})"
             }
-            
-            print(f"{Fore.WHITE}[{Fore.LIGHTGREEN_EX}+{Fore.WHITE}] Token {name} válido → {Fore.LIGHTBLUE_EX}{username}#{discriminator}{Fore.WHITE}")
+           
+            print(f"{Fore.WHITE}[{Fore.LIGHTGREEN_EX}+{Fore.WHITE}] Token {name} **VÁLIDO** → {Fore.LIGHTBLUE_EX}{username}#{discriminator}{Fore.WHITE}")
+        
+        elif validate.status_code == 401:
+            print(f"{Fore.WHITE}[{Fore.RED}-{Fore.WHITE}] Token {name} **INVÁLIDO** (401 Unauthorized)")
+            print(f"   → Verifique se copiou o token corretamente ou se a conta foi banida/restrita.")
         else:
-            print(f"{Fore.WHITE}[{Fore.RED}-{Fore.WHITE}] Token {name} inválido (Status: {validate.status_code})")
-            
+            print(f"{Fore.WHITE}[{Fore.RED}-{Fore.WHITE}] Token {name} inválido (Status: {validate.status_code}) - {validate.text[:200]}")
+           
     except Exception as e:
         print(f"{Fore.WHITE}[{Fore.RED}-{Fore.WHITE}] Erro ao validar {name}: {e}")
 
@@ -68,7 +76,7 @@ print(f"\n{Fore.WHITE}[{Fore.LIGHTGREEN_EX}+{Fore.WHITE}] Iniciando {len(valid_t
 async def keep_online(token, user_info):
     while True:
         try:
-            async with websockets.connect("wss://gateway.discord.gg/?v=9&encoding=json") as ws:
+            async with websockets.connect("wss://gateway.discord.gg/?v=10&encoding=json") as ws:
                 start = json.loads(await ws.recv())
                 heartbeat = start["d"]["heartbeat_interval"]
 
