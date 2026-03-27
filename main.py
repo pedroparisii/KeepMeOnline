@@ -11,8 +11,8 @@ from keep_alive import keep_alive
 init(autoreset=True)
 
 # ================== CONFIGURAÇÃO ==================
-status = "idle"                    # online / dnd / idle
-custom_status = "Ascent"
+status = os.getenv("STATUS")      # online / dnd / idle (VARIABLE)
+custom_status = ""
 
 # Coloque seus tokens aqui (pode deixar vazio se for usar variável de ambiente)
 TOKENS = {
