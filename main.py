@@ -11,6 +11,7 @@ init(autoreset=True)
 
 # ================== CONFIGURAÇÃO ==================
 status = "idle"                    # online / dnd / idle
+custom_status = "Ascent"
 
 # Coloque seus tokens aqui (pode deixar vazio se for usar variável de ambiente)
 TOKENS = {
